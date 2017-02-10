@@ -5,17 +5,12 @@ variable "cidr" {
 
 variable "external_subnets" {
   description = "List of subnets"
-  type = "list"
+  type = "map"
 }
 
 variable "internal_subnets" {
   description = "List of subnets"
-  type = "list"
-}
-
-variable "availability_zones" {
-  description = "List of availability zones"
-  type = "list"
+  type = "map"
 }
 
 variable "environment" {
@@ -58,14 +53,14 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_nat_gateway" "main" {
-  count         = "${length(compact(var.internal_subnets))}"
+  count         = "${length(compact(keys(var.internal_subnets)))}"
   allocation_id = "${element(aws_eip.nat.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.external.*.id, count.index)}"
   depends_on    = ["aws_internet_gateway.main"]
 }
 
 resource "aws_eip" "nat" {
-  count = "${length(compact(var.internal_subnets))}"
+  count = "${length(compact(keys(var.internal_subnets)))}"
   vpc   = true
 }
 
@@ -75,9 +70,9 @@ resource "aws_eip" "nat" {
 
 resource "aws_subnet" "internal" {
   vpc_id            = "${aws_vpc.main.id}"
-  cidr_block        = "${element(var.internal_subnets, count.index)}"
-  availability_zone = "${element(var.availability_zones, count.index)}"
-  count             = "${length(compact(var.internal_subnets))}"
+  cidr_block        = "${element(compact(keys(var.internal_subnets)), count.index)}"
+  availability_zone = "${element(compact(values(var.internal_subnets)), count.index)}"
+  count             = "${length(compact(keys(var.internal_subnets)))}"
 
   tags {
     Name = "${var.name}-${format("internal-%03d", count.index+1)}"
@@ -86,9 +81,9 @@ resource "aws_subnet" "internal" {
 
 resource "aws_subnet" "external" {
   vpc_id                  = "${aws_vpc.main.id}"
-  cidr_block              = "${element(var.external_subnets, count.index)}"
-  availability_zone       = "${element(var.availability_zones, count.index)}"
-  count                   = "${length(compact(var.external_subnets))}"
+  cidr_block              = "${element(compact(keys(var.external_subnets)), count.index)}"
+  availability_zone       = "${element(compact(values(var.external_subnets)), count.index)}"
+  count                   = "${length(compact(keys(var.external_subnets)))}"
   map_public_ip_on_launch = true
 
   tags {
@@ -114,7 +109,7 @@ resource "aws_route_table" "external" {
 }
 
 resource "aws_route_table" "internal" {
-  count  = "${length(compact(var.internal_subnets))}"
+  count  = "${length(compact(keys(var.internal_subnets)))}"
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
@@ -127,13 +122,13 @@ resource "aws_route_table" "internal" {
  */
 
 resource "aws_route_table_association" "internal" {
-  count          = "${length(compact(var.internal_subnets))}"
+  count          = "${length(compact(keys(var.internal_subnets)))}"
   subnet_id      = "${element(aws_subnet.internal.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.internal.*.id, count.index)}"
 }
 
 resource "aws_route_table_association" "external" {
-  count          = "${length(compact(var.external_subnets))}"
+  count          = "${length(compact(keys(var.external_subnets)))}"
   subnet_id      = "${element(aws_subnet.external.*.id, count.index)}"
   route_table_id = "${aws_route_table.external.id}"
 }
