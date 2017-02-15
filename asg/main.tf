@@ -81,6 +81,11 @@ variable "associate_public_ip_address" {
   default     = false
 }
 
+variable "security_groups" {
+  description = "Security groups for new instances"
+  type = "list"
+}
+
 variable "ebs_device_name" {
   default = "/dev/sdh"
   type = "string"
@@ -135,35 +140,6 @@ variable "wait_for_capacity_timeout" {
   default     = "10m"
 }
 
-resource "aws_security_group" "asg" {
-  name        = "${var.name}-asg"
-  vpc_id      = "${var.vpc_id}"
-  description = "Allows traffic from and to the EC2 instances of the ${var.name} ASG"
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["${split(",", var.ingress_cidr)}"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "ASG (${var.name})"
-    Environment = "${var.environment}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 data "template_file" "instance_config" {
   template = "${file("${path.module}/files/instance-config.yml.tpl")}"
 
@@ -180,7 +156,7 @@ resource "aws_launch_configuration" "main" {
   ebs_optimized               = "${var.instance_ebs_optimized}"
   iam_instance_profile        = "${var.iam_instance_profile}"
   key_name                    = "${var.key_name}"
-  security_groups             = ["${aws_security_group.asg.id}"]
+  security_groups             = ["${var.security_groups}"]
   user_data                   = "${data.template_file.instance_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
@@ -317,9 +293,4 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 // The asg name, e.g cdn
 output "name" {
   value = "${var.name}"
-}
-
-// The asg security group ID.
-output "security_group_id" {
-  value = "${aws_security_group.asg.id}"
 }
