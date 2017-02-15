@@ -31,11 +31,6 @@ variable "key_name" {
   type = "string"
 }
 
-variable "ingress_cidr" {
-  description = "Comma separated list of ingress cidrs"
-  type = "string"
-}
-
 variable "iam_instance_profile" {
   description = "Instance profile ARN to use in the launch configuration"
   type = "string"
