@@ -152,6 +152,16 @@ output "internal_subnets" {
   value = ["${aws_subnet.internal.*.id}"]
 }
 
+// A comma-separated list of subnet IDs.
+output "external_route_tables" {
+  value = ["${aws_route_table.external.*.id}"]
+}
+
+// A comma-separated list of subnet IDs.
+output "internal_route_tables" {
+  value = ["${aws_route_table.internal.*.id}"]
+}
+
 // The default VPC security group ID.
 output "security_group" {
   value = "${aws_vpc.main.default_security_group_id}"
