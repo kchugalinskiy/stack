@@ -20,6 +20,11 @@ variable "environment" {
 }
 
 variable "port" {
+  description = "load balancer port"
+  type = "string"
+}
+
+variable "instance_port" {
   description = "Instance port"
   type = "string"
 }
@@ -99,7 +104,7 @@ resource "aws_elb" "main" {
   listener {
     lb_port           = "${var.port}"
     lb_protocol       = "${var.protocol}"
-    instance_port     = "${var.port}"
+    instance_port     = "${var.instance_port}"
     instance_protocol = "${var.protocol}"
   }
 
