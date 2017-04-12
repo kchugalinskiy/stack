@@ -117,7 +117,7 @@ resource "aws_elb" "main" {
     healthy_threshold   = "${var.healthcheck_healthy_threshold}"
     unhealthy_threshold = "${var.healthcheck_unhealthy_threshold}"
     timeout             = "${var.healthcheck_timeout}"
-    target              = "${var.protocol}:${var.port}${var.healthcheck}"
+    target              = "${var.protocol}:${var.instance_port}${var.healthcheck}"
     interval            = "${var.healthcheck_interval}"
   }
 
