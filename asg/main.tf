@@ -36,11 +36,6 @@ variable "iam_instance_profile" {
   type = "string"
 }
 
-variable "region" {
-  description = "AWS Region"
-  type = "string"
-}
-
 variable "availability_zones" {
   description = "list of AZs"
   type = "list"
@@ -154,8 +149,6 @@ resource "aws_launch_configuration" "main" {
   security_groups             = ["${var.security_groups}"]
   user_data                   = "${data.template_file.instance_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
-
-  # spot_price                  = "0.07"
 
   # root
   ebs_block_device {

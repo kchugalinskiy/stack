@@ -79,6 +79,11 @@ variable "log_bucket" {
   type = "string"
 }
 
+variable "log_bucket_prefix" {
+  description = "S3 bucket prefix to write ELB logs into"
+  type = "string"
+}
+
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html?icmpid=docs_elb_console
 variable "idle_timeout" {
   description = "ELB idle connection timeout"
@@ -118,6 +123,7 @@ resource "aws_elb" "main" {
 
   access_logs {
     bucket = "${var.log_bucket}"
+    bucket_prefix = "${var.log_bucket_prefix}"
   }
 
   tags {
