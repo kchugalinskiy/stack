@@ -189,8 +189,7 @@ module "dns" {
 
 module "iam_role" {
   source      = "./iam-role"
-  name        = "${var.name}"
-  environment = "${var.environment}"
+  name        = "${var.name}-${var.environment}"
 }
 
 module "ecs_cluster" {
