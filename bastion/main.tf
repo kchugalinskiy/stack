@@ -41,16 +41,16 @@ variable "vpc_id" {
   description = "VPC ID"
 }
 
+variable "name" {
+  description = "Bastion instance name"
+}
+
 variable "key_name" {
   description = "The SSH key pair, key name"
 }
 
 variable "subnet_id" {
   description = "A external subnet id"
-}
-
-variable "environment" {
-  description = "Environment tag, e.g prod"
 }
 
 module "ami" {
@@ -71,8 +71,7 @@ resource "aws_instance" "bastion" {
   user_data              = "${file(format("%s/user_data.sh", path.module))}"
 
   tags {
-    Name        = "bastion"
-    Environment = "${var.environment}"
+    Name        = "${var.name}"
   }
 }
 
