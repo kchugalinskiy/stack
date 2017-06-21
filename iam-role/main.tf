@@ -2,6 +2,11 @@ variable "name" {
   description = "The name of the stack to use in security groups"
 }
 
+variable "path" {
+  description = "The path of the stack to use in security groups"
+  default = "/"
+}
+
 variable "allow_services" {
   description = ""
   default     = "\"ec2.amazonaws.com\""
@@ -46,6 +51,7 @@ resource "aws_iam_role_policy" "inline_policy" {
 
 resource "aws_iam_role" "instance_role" {
   name               = "${var.name}"
+  path               = "${var.path}"
   assume_role_policy = "${data.template_file.aws_iam_role.rendered}"
 }
 
